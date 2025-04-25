@@ -10,6 +10,7 @@ const genreRouter = require('./routes/genre');
 const bookInstanceRouter = require('./routes/bookinstance');
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var my_pageRouter = require("./routes/my_page");
 
 var app = express();
 // Connect to MongoDB
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/', my_pageRouter);
 app.use('/catalog/book', bookRouter);
 app.use('/catalog/author', authorRouter);
 app.use('/catalog/genre', genreRouter);
