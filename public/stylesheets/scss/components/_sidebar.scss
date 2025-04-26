@@ -1,0 +1,25 @@
+.sidebar-nav {
+    padding: 0;
+    list-style: none;
+    background-color: $sidebar-bg;
+    height: 100vh;
+    border-right: 1px solid #dee2e6;
+    margin-top: 20px;
+  
+    li {
+      margin: 10px 0;
+  
+      a {
+        text-decoration: none;
+        color: $primary-color;
+        padding: 5px 10px;
+        display: block;
+  
+        &:hover {
+          text-decoration: underline;
+          background-color: lighten($sidebar-bg, 5%);
+        }
+      }
+    }
+  }
+  

@@ -16,7 +16,10 @@
     "http-errors": "~1.6.3",
     "mongoose": "^8.12.1",
     "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11"
+    "node-sass-middleware": "^1.1.0",
+    "pug": "2.0.0-beta11",
+    "sass": "^1.87.0",
+    "scss": "^0.2.4"
   },
   "main": "app.js",
   "author": "Ruslan",

@@ -1,28 +1,53 @@
 const Genre = require("../models/genre");
+const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
 
-exports.genre_list = asyncHandler(async (req, res, next) => {
+exports.genre_list = asyncHandler(async (req, res) => {
   const genres = await Genre.find();
-  res.json(genres);
+  if (genres.length === 0) {
+    return res.status(404).send("<h1>No genres found</h1>");
+  }
+  const listHtml = `<ul>${genres.map(g => `<li>${g.name}</li>`).join("")}</ul>`;
+  res.send(listHtml);
 });
 
-exports.genre_detail = asyncHandler(async (req, res, next) => {
+exports.genre_detail = asyncHandler(async (req, res) => {
   const genre = await Genre.findById(req.params.id);
-  if (!genre) {
-    return res.status(404).json({ message: "Genre not found" });
-  }
-  res.json(genre);
+  if (!genre) return res.status(404).json({ message: "Genre not found" });
+
+  const books = await Book.find({ genre: genre._id }, "title");
+  res.json({ genre, books });
 });
 
-exports.genre_create_post = asyncHandler(async (req, res, next) => {
-  const genre = new Genre({
-    name: req.body.name,
-  });
+exports.genre_create_post = asyncHandler(async (req, res) => {
+  const { name } = req.body;
+  const genre = new Genre({ name });
+  const savedGenre = await genre.save();
+  res.status(201).json(savedGenre);
+});
 
-  try {
-    const newGenre = await genre.save();
-    res.status(201).json(newGenre);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+exports.genre_update_post = asyncHandler(async (req, res) => {
+  const { name } = req.body;
+  const updatedGenre = await Genre.findByIdAndUpdate(
+    req.params.id,
+    { name },
+    { new: true, runValidators: true }
+  );
+  if (!updatedGenre) return res.status(404).json({ message: "Genre not found" });
+  res.json(updatedGenre);
+});
+
+exports.genre_delete_post = asyncHandler(async (req, res) => {
+  const genre = await Genre.findById(req.params.id);
+  if (!genre) return res.status(404).json({ message: "Genre not found" });
+
+  const books = await Book.find({ genre: genre._id });
+  if (books.length > 0)
+    return res.status(400).json({
+      message: "Genre has associated books. Cannot delete.",
+      books: books.map(b => ({ title: b.title, id: b._id }))
+    });
+
+  await Genre.findByIdAndDelete(req.params.id);
+  res.json({ message: "Genre deleted successfully" });
 });

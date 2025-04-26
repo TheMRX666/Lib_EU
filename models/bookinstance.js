@@ -18,4 +18,4 @@ BookInstanceSchema.virtual("url").get(function () {
 });
 
 // Експортуємо модель
-module.exports = mongoose.model("BookInstance", BookInstanceSchema);
+module.exports = mongoose.models.BookInstance || mongoose.model("BookInstance", BookInstanceSchema);

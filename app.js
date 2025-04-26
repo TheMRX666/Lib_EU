@@ -10,9 +10,22 @@ const genreRouter = require('./routes/genre');
 const bookInstanceRouter = require('./routes/bookinstance');
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-var my_pageRouter = require("./routes/my_page");
+const catalogRouter = require("./routes/catalog");
+const sassMiddleware = require('node-sass-middleware');
+
 
 var app = express();
+
+app.use(
+  sassMiddleware({
+    src: path.join(__dirname, 'public/stylesheets/scss'),
+    dest: path.join(__dirname, 'public/stylesheets'),
+    debug: true,
+    outputStyle: 'compressed',
+    prefix: '/stylesheets'
+  })
+);
+
 // Connect to MongoDB
 connectDB();
 
@@ -27,8 +40,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/catalog', catalogRouter)
 app.use('/users', usersRouter);
-app.use('/', my_pageRouter);
 app.use('/catalog/book', bookRouter);
 app.use('/catalog/author', authorRouter);
 app.use('/catalog/genre', genreRouter);

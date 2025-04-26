@@ -1,5 +1,17 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  .home-page
+    h1= title
+    p Запрошуємо на сайт #{title}, простий сайт на Експрес ДжЕс, розроблений як туторіал для навчання.
+
+    p2 Динамічний контент
+
+    p Доступні записи:
+
+    ul 
+      li #[strong Книги:] !{book_count}
+      li #[strong Копії:] !{book_instance_count}
+      li #[strong Доступні копії:] !{book_instance_available_count}
+      li #[strong Автори:] !{author_count}
+      li #[strong Жанри:] !{genre_count}

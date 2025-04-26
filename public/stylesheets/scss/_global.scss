@@ -1,0 +1,20 @@
+body {
+    font-family: $font-stack;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+  }
+  
+  h1 {
+    color: $primary-color;
+    text-decoration: underline;
+  }
+  
+  ul {
+    padding-left: 20px;
+    li {
+      color: $success-color;
+      list-style-type: square;
+    }
+  }
+  
