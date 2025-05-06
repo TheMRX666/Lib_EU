@@ -31,17 +31,29 @@ exports.index = asyncHandler(async (req, res, next) => {
 });
 
 exports.book_list = asyncHandler(async (req, res) => {
-  const title = req.query.title;
-  const query = title ? { title: new RegExp(title, "i") } : {};
+  const authorQuery = req.query.author;
 
-  const books = await Book.find(query).populate("author", "first_name family_name").populate("genre", "name");
+  const filter = authorQuery
+    ? { 
+        author: await Author.findOne({
+          $or: [
+            { first_name: new RegExp(authorQuery, 'i') },
+            { family_name: new RegExp(authorQuery, 'i') }
+          ]
+        }).select('_id')
+      }
+    : {};
 
-  if (books.length === 0) {
-    return res.status(404).send("<h1>Book not found</h1>");
-  }
+  const allBooks = await Book.find(filter, "title author")
+    .sort({ title: 1 })
+    .populate("author")
+    .exec();
 
-  const listHtml = `<ul>${books.map(book => `<li>${book.title} by ${book.author.first_name} ${book.author.family_name}</li>`).join("")}</ul>`;
-  res.send(listHtml);
+  res.render("book_list", {
+    title: "Список книг",
+    book_list: allBooks,
+    author_query: authorQuery || "",
+  });
 });
 
 exports.book_detail = asyncHandler(async (req, res) => {

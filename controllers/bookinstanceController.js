@@ -3,12 +3,34 @@ const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
 
 exports.bookinstance_list = asyncHandler(async (req, res) => {
-  const instances = await BookInstance.find().populate("book", "title");
-  if (instances.length === 0) {
-    return res.status(404).send("<h1>No book instances found</h1>");
+  try {
+    const allBookInstances = await BookInstance.find()
+      .populate("book")
+      .exec();
+
+    const statusClass = (status) => {
+      switch (status) {
+        case "Available":
+          return "text-success";
+        case "Maintenance":
+          return "text-danger";
+        case "Loaned":
+          return "text-warning";
+        case "Reserved":
+          return "text-info";
+        default:
+          return "";
+      }
+    };
+
+    res.render("bookinstance_list", {
+      title: "Список екземплярів книг",
+      bookinstance_list: allBookInstances,
+      statusClass, 
+    });
+  } catch (err) {
+    return next(err);
   }
-  const listHtml = `<ul>${instances.map(inst => `<li>${inst.book.title} — ${inst.status}</li>`).join("")}</ul>`;
-  res.send(listHtml);
 });
 
 exports.bookinstance_detail = asyncHandler(async (req, res) => {

@@ -1,8 +1,11 @@
-.books-list {
+.book-list {
     padding: 1rem;
-  
-    li {
-      font-weight: bold;
+
+    .book-item{
+
+      .book-author{
+        color: black;
+      }
     }
   }
   

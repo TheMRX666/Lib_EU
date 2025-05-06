@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  h1.pt-4= title
+
+  if book_list.length
+    ul.book-list
+      each book in book_list
+        li.book-item
+          a.book-link(href=book.url)= book.title
+          span.book-author &nbsp;- (#{book.author.name})
+  else
+    p.no-books Книг немає.
