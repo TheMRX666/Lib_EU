@@ -17,7 +17,7 @@ exports.bookinstance_list = asyncHandler(async (req, res) => {
         case "Loaned":
           return "text-warning";
         case "Reserved":
-          return "text-info";
+          return "text-warning";
         default:
           return "";
       }
