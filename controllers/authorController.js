@@ -4,34 +4,28 @@ const asyncHandler = require("express-async-handler");
 const mongoose = require("mongoose");
 
 exports.author_list = asyncHandler(async (req, res, next) => {
-    const name = req.query["name"];
-  
-    let query = {};
-    if (name) {
-      const regex = new RegExp(name, "i");
-      query = {
-        $or: [
-          { first_name: regex },
-          { family_name: regex }
-        ]
-      };
-    }
-  
-    try {
-      const authors = await Author.find(query).select("first_name family_name");
-  
-      if (authors.length === 0) {
-        return res.status(404).send("<h1>Author not found</h1>");
-      }
-  
-      const authorNames = authors.map(a => `${a.first_name} ${a.family_name}`);
-      const listHtml = `<ul>${authorNames.map(name => `<li>${name}</li>`).join("")}</ul>`;
-  
-      res.send(listHtml);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("<h1>Error occurred</h1>");
-    }
+  const name = req.query["name"];
+
+  let query = {};
+  if (name) {
+    const regex = new RegExp(name, "i");
+    query = {
+      $or: [
+        { first_name: regex },
+        { family_name: regex }
+      ]
+    };
+  }
+
+  const authors = await Author.find(query)
+    .sort({ family_name: 1 })
+    .exec();
+
+  res.render("author_list", {
+    title: "Список авторів",
+    author_list: authors,
+    search_name: name || ""
+  });
 });
 
 exports.author_detail = asyncHandler(async (req, res, next) => {

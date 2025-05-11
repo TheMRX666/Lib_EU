@@ -2,13 +2,12 @@ const Genre = require("../models/genre");
 const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
 
-exports.genre_list = asyncHandler(async (req, res) => {
-  const genres = await Genre.find();
-  if (genres.length === 0) {
-    return res.status(404).send("<h1>No genres found</h1>");
-  }
-  const listHtml = `<ul>${genres.map(g => `<li>${g.name}</li>`).join("")}</ul>`;
-  res.send(listHtml);
+exports.genre_list = asyncHandler(async (req, res, next) => {
+  const allGenres = await Genre.find().sort({ name: 1 }).exec();
+  res.render("genre_list", {
+    title: "Список жанрів",
+    genre_list: allGenres,
+  });
 });
 
 exports.genre_detail = asyncHandler(async (req, res) => {
