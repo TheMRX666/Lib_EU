@@ -10,7 +10,7 @@ block content
           strong #{val.book.title}
             span.status(class=statusClass(val.status)) &nbsp;- #{val.status}
               if val.status !== 'Available'
-                span.due-back &nbsp; | Due: #{val.due_back.toDateString()}
+                span.due-back &nbsp; | Due: #{val.due_back_formatted}
 
   else
     p Копій книг немає.

@@ -12,7 +12,7 @@ block content
       each author in author_list
         li
             a(href=author.url) #{author.first_name} #{author.family_name}
-            |  (#{author.date_of_birth ? author.date_of_birth.toLocaleDateString('uk-UA') : 'н/д'} - #{author.date_of_death ? author.date_of_death.toLocaleDateString('uk-UA') : 'н/д'})
+            |  (#{author.lifespan})
     
   else
     p Авторів не знайдено.

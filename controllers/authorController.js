@@ -29,12 +29,24 @@ exports.author_list = asyncHandler(async (req, res, next) => {
 });
 
 exports.author_detail = asyncHandler(async (req, res, next) => {
-  const author = await Author.findById(req.params.id);
-  if (!author) return res.status(404).json({ message: "Author not found" });
+  const [author, allBooksByAuthor] = await Promise.all([
+    Author.findById(req.params.id).exec(),
+    Book.find({ author: req.params.id }, "title summary").exec(),
+  ]);
 
-  const books = await Book.find({ author: req.params.id }, "title summary");
-  res.json({ author, books });
+  if (author === null) {
+    const err = new Error("Автор не знайдений");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("author_detail", {
+    title: "Деталі автора",
+    author: author,
+    author_books: allBooksByAuthor,
+  });
 });
+
 
 exports.author_create_get = asyncHandler(async (req, res, next) => {
   res.send("Author create GET - form (not needed for API)");

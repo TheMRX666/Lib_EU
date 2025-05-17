@@ -56,11 +56,25 @@ exports.book_list = asyncHandler(async (req, res) => {
   });
 });
 
-exports.book_detail = asyncHandler(async (req, res) => {
-  const book = await Book.findById(req.params.id).populate("author", "first_name family_name").populate("genre", "name");
-  if (!book) return res.status(404).json({ message: "Book not found" });
-  res.json(book);
+exports.book_detail = asyncHandler(async (req, res, next) => {
+  const [book, bookInstances] = await Promise.all([
+    Book.findById(req.params.id).populate("author").populate("genre").exec(),
+    BookInstance.find({ book: req.params.id }).exec(),
+  ]);
+
+  if (book === null) {
+    const err = new Error("Книгу не знайдено");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("book_detail", {
+    title: book.title,
+    book: book,
+    book_instances: bookInstances,
+  });
 });
+
 
 exports.book_create_post = asyncHandler(async (req, res) => {
   const { title, author, summary, isbn, genre } = req.body;

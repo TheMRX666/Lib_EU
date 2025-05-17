@@ -10,12 +10,23 @@ exports.genre_list = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.genre_detail = asyncHandler(async (req, res) => {
-  const genre = await Genre.findById(req.params.id);
-  if (!genre) return res.status(404).json({ message: "Genre not found" });
+exports.genre_detail = asyncHandler(async (req, res, next) => {
+  const [genre, booksInGenre] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Book.find({ genre: req.params.id }, "title summary").exec(),
+  ]);
 
-  const books = await Book.find({ genre: genre._id }, "title");
-  res.json({ genre, books });
+  if (genre === null) {
+    const err = new Error("Жанр не знайдено");
+    err.status = 404;
+    return next(err);
+  }
+
+  res.render("genre_detail", {
+    title: "Деталі жанру",
+    genre: genre,
+    genre_books: booksInGenre,
+  });
 });
 
 exports.genre_create_post = asyncHandler(async (req, res) => {
