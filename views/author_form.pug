@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  h1= title
+
+  if success
+    div.alert.alert-success= success
+
+  if errors
+    ul.text-danger
+      each error in errors
+        li= error.msg
+
+  form(method='POST')
+    div.form-group
+      label(for='first_name') Ім'я:
+      input#first_name.form-control(
+        type='text',
+        name='first_name',
+        placeholder='Ім\'я',
+        required,
+        value=(typeof author !== 'undefined' ? author.first_name : '')
+      )
+
+    div.form-group
+      label(for='family_name') Прізвище:
+      input#family_name.form-control(
+        type='text',
+        name='family_name',
+        placeholder='Прізвище',
+        required,
+        value=(typeof author !== 'undefined' ? author.family_name : '')
+      )
+
+    div.form-group
+      label(for='date_of_birth') Дата народження:
+      input#date_of_birth.form-control(
+        type='date',
+        name='date_of_birth',
+        value=(typeof author !== 'undefined' && author.date_of_birth ? author.date_of_birth.toISOString().substring(0,10) : '')
+      )
+
+    div.form-group
+      label(for='date_of_death') Дата смерті:
+      input#date_of_death.form-control(
+        type='date',
+        name='date_of_death',
+        value=(typeof author !== 'undefined' && author.date_of_death ? author.date_of_death.toISOString().substring(0,10) : '')
+      )
+
+    button.btn.btn-primary(type='submit') Створити

@@ -1,6 +1,7 @@
 const Author = require("../models/author");
 const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
 exports.author_list = asyncHandler(async (req, res, next) => {
@@ -48,23 +49,106 @@ exports.author_detail = asyncHandler(async (req, res, next) => {
 });
 
 
-exports.author_create_get = asyncHandler(async (req, res, next) => {
-  res.send("Author create GET - form (not needed for API)");
-});
+exports.author_create_get = (req, res, next) => {
+  res.render("author_form", { title: "Створити автора" });
+};
 
-exports.author_create_post = asyncHandler(async (req, res, next) => {
-  const { first_name, family_name, date_of_birth, date_of_death } = req.body;
+exports.author_create_post = [
+  body("first_name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("Ім'я повинно бути вказано.")
+    .isAlphanumeric()
+    .withMessage("Ім'я містить неалфанумерні символи."),
+  body("family_name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("Прізвище повинно бути вказано.")
+    .isAlphanumeric()
+    .withMessage("Прізвище містить неалфанумерні символи."),
+  body("date_of_birth", "Невірна дата народження")
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .toDate(),
+  body("date_of_death", "Невірна дата смерті")
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .toDate(),
 
-  const author = new Author({
-    first_name,
-    family_name,
-    date_of_birth,
-    date_of_death,
-  });
+asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+    const { first_name, family_name, date_of_birth, date_of_death } = req.body;
 
-  const savedAuthor = await author.save();
-  res.status(201).json(savedAuthor);
-});
+    const author = new Author({
+      first_name,
+      family_name,
+      date_of_birth,
+      date_of_death,
+    });
+
+   if (!errors.isEmpty()) {
+      return res.render("author_form", {
+        title: "Створити автора",
+        author,
+        errors: errors.array(),
+      });
+    }
+
+    await author.save();
+
+    res.render("author_form", {
+      title: "Створити автора",
+      author: {},
+      success: "Автор успішно створений!",
+    });
+  })
+];
+
+exports.author_update_post = [
+  body("first_name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("Ім'я повинно бути вказано.")
+    .isAlphanumeric()
+    .withMessage("Ім'я містить неалфанумерні символи."),
+  body("family_name")
+    .trim()
+    .isLength({ min: 1 })
+    .escape()
+    .withMessage("Прізвище повинно бути вказано.")
+    .isAlphanumeric()
+    .withMessage("Прізвище містить неалфанумерні символи."),
+  body("date_of_birth", "Невірна дата народження")
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .toDate(),
+  body("date_of_death", "Невірна дата смерті")
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .toDate(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const updatedAuthor = await Author.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAuthor)
+      return res.status(404).json({ message: "Author not found" });
+
+    res.json(updatedAuthor);
+  }),
+];
 
 exports.author_delete_get = asyncHandler(async (req, res, next) => {
   res.send("Author delete GET - form (not needed for API)");

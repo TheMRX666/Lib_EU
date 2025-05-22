@@ -1,6 +1,7 @@
 const Genre = require("../models/genre");
 const Book = require("../models/book");
 const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 exports.genre_list = asyncHandler(async (req, res, next) => {
   const allGenres = await Genre.find().sort({ name: 1 }).exec();
@@ -29,12 +30,43 @@ exports.genre_detail = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.genre_create_post = asyncHandler(async (req, res) => {
-  const { name } = req.body;
-  const genre = new Genre({ name });
-  const savedGenre = await genre.save();
-  res.status(201).json(savedGenre);
-});
+exports.genre_create_get = (req, res, next) => {
+  res.render("genre_form", { title: "Створити жанр" });
+};
+
+
+exports.genre_create_post = [
+  body("name", "Назва жанру повинна містити мінімум 3 символи.")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    const genre = new Genre({ name: req.body.name });
+
+    if (!errors.isEmpty()) {
+      return res.render("genre_form", {
+        title: "Створити жанр",
+        genre,
+        errors: errors.array(),
+      });
+    }
+
+    const existingGenre = await Genre.findOne({
+      name: req.body.name,
+    }).collation({ locale: "en", strength: 2 });
+
+    if (existingGenre) {
+      return res.redirect(existingGenre.url);
+    }
+
+    await genre.save();
+    res.redirect(genre.url);
+  })
+];
+
 
 exports.genre_update_post = asyncHandler(async (req, res) => {
   const { name } = req.body;
