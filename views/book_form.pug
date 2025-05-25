@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  h1= title
+
+  form(method='POST')
+    div.form-group
+      label(for='title') Назва:
+      input#title.form-control(type='text', name='title', required, placeholder='Назва книги', value=(book ? book.title : ''))
+    div.form-group
+      label(for='author') Автор:
+      select#author.form-control(name='author' required)
+        option(value='') --Будь ласка, виберіть автора--
+        for author in authors
+          if book && author._id.toString() === book.author.toString()
+            option(value=author._id selected)= author.name
+          else
+            option(value=author._id)= author.name
+    div.form-group
+      label(for='summary') Опис:
+      textarea#summary.form-control(name='summary', required placeholder='Опис')= book ? book.summary : ''
+    div.form-group
+      label(for='isbn') ISBN:
+      input#isbn.form-control(type='text', name='isbn', required, placeholder='ISBN13', value=(book ? book.isbn : ''))
+    div.form-group
+      label Жанр:
+      div
+        for genre in genres
+          div(style='display:inline; padding-right:10px;')
+            if genre.checked
+              input(type='checkbox', name='genre', id=genre._id, value=genre._id, checked)
+            else
+              input(type='checkbox', name='genre', id=genre._id, value=genre._id)
+            label(for=genre._id) &nbsp;#{genre.name}
+
+    button.btn.btn-primary(type='submit') Зберегти
+
+  if errors
+    ul.text-danger
+      each error in errors
+        li= error.msg

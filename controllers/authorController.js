@@ -55,37 +55,27 @@ exports.author_create_get = (req, res, next) => {
 
 exports.author_create_post = [
   body("first_name")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Ім'я повинно бути вказано.")
-    .isAlphanumeric()
-    .withMessage("Ім'я містить неалфанумерні символи."),
+    .trim().isLength({ min: 1 })
+    .escape().withMessage("Ім'я повинно бути вказано.")
+    .isAlphanumeric().withMessage("Ім'я містить неалфанумерні символи."),
   body("family_name")
-    .trim()
-    .isLength({ min: 1 })
-    .escape()
-    .withMessage("Прізвище повинно бути вказано.")
-    .isAlphanumeric()
-    .withMessage("Прізвище містить неалфанумерні символи."),
+    .trim().isLength({ min: 1 })
+    .escape().withMessage("Прізвище повинно бути вказано.")
+    .isAlphanumeric().withMessage("Прізвище містить неалфанумерні символи."),
   body("date_of_birth", "Невірна дата народження")
     .optional({ checkFalsy: true })
-    .isISO8601()
-    .toDate(),
+    .isISO8601().toDate(),
   body("date_of_death", "Невірна дата смерті")
     .optional({ checkFalsy: true })
-    .isISO8601()
-    .toDate(),
+    .isISO8601().toDate(),
 
 asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
     const { first_name, family_name, date_of_birth, date_of_death } = req.body;
 
     const author = new Author({
-      first_name,
-      family_name,
-      date_of_birth,
-      date_of_death,
+      first_name,family_name,
+      date_of_birth,date_of_death,
     });
 
    if (!errors.isEmpty()) {
