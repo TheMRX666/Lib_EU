@@ -1,0 +1,2 @@
+[packages]
+apt = ["python3", "build-essential"]
