@@ -14,6 +14,9 @@ block content
       a(href=val.url) #{val.name}
       if index < book.genre.length - 1
         |,&nbsp;
+      
+  p
+    a(href=book.url+'/delete') Видалити книгу
 
   div(style='margin-left:20px;margin-top:20px')
     h2(style='font-size: 1.5rem;') Копії
@@ -32,10 +35,9 @@ block content
       p #[strong Ідентифікатор: ]
         a(href=val.url) #{val._id}
 
-      form(method="POST", action=`/catalog/bookinstance/${val._id}/delete`, style="margin-top:10px;")
-        input(type="hidden", name="bookinstanceid", value=val._id)
-        input(type="hidden", name="bookid", value=book._id)
-        button.btn.btn-danger(type="submit") 🗑 Видалити примірник
+      p
+        a.btn.btn-danger(href=`/catalog/bookinstance/${val._id}/delete`) 🗑 Видалити примірник
+
 
     else
       p У бібліотеці немає копій цієї книги.
