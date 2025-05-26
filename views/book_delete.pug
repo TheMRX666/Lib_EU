@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1 #{title}: #{book.title}
+
+  if book_instances.length
+    p #[strong Спочатку видаліть усі копії цієї книги (BookInstance).]
+    div(style='margin-left:20px;margin-top:20px')
+      each instance in book_instances
+        p
+          a(href=instance.url) #{instance.imprint} - #{instance.status}
+  else
+    p Ви дійсно хочете видалити цю книгу?
+
+    form(method='POST')
+      input(type='hidden', name='bookid', value=book._id)
+      button.btn.btn-primary(type='submit') Видалити

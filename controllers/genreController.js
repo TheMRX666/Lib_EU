@@ -79,17 +79,38 @@ exports.genre_update_post = asyncHandler(async (req, res) => {
   res.json(updatedGenre);
 });
 
-exports.genre_delete_post = asyncHandler(async (req, res) => {
-  const genre = await Genre.findById(req.params.id);
-  if (!genre) return res.status(404).json({ message: "Genre not found" });
+exports.genre_delete_get = asyncHandler(async (req, res, next) => {
+  const [genre, booksWithGenre] = await Promise.all([
+    Genre.findById(req.params.id).exec(),
+    Book.find({ genre: req.params.id }).exec(),
+  ]);
 
-  const books = await Book.find({ genre: genre._id });
-  if (books.length > 0)
-    return res.status(400).json({
-      message: "Genre has associated books. Cannot delete.",
-      books: books.map(b => ({ title: b.title, id: b._id }))
+  if (genre === null) {
+    res.redirect("/catalog/genre");
+  }
+
+  res.render("genre_delete", {
+    title: "Видалити жанр",
+    genre: genre,
+    genre_books: booksWithGenre,
+  });
+});
+
+exports.genre_delete_post = asyncHandler(async (req, res, next) => {
+  const [genre, booksWithGenre] = await Promise.all([
+    Genre.findById(req.body.genreid).exec(),
+    Book.find({ genre: req.body.genreid }).exec(),
+  ]);
+
+  if (booksWithGenre.length > 0) {
+    res.render("genre_delete", {
+      title: "Видалити жанр",
+      genre: genre,
+      genre_books: booksWithGenre,
     });
-
-  await Genre.findByIdAndDelete(req.params.id);
-  res.json({ message: "Genre deleted successfully" });
+    return;
+  } else {
+    await Genre.findByIdAndDelete(req.body.genreid);
+    res.redirect("/catalog/genre");
+  }
 });

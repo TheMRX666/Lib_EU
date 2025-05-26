@@ -141,24 +141,42 @@ exports.author_update_post = [
 ];
 
 exports.author_delete_get = asyncHandler(async (req, res, next) => {
-  res.send("Author delete GET - form (not needed for API)");
+  const [author, allBooksByAuthor] = await Promise.all([
+    Author.findById(req.params.id).exec(),
+    Book.find({ author: req.params.id }, "title summary").exec(),
+  ]);
+
+  if (author === null) {
+    res.redirect("/catalog/author");
+  }
+
+  res.render("author_delete", {
+    title: "Видалити автора",
+    author: author,
+    author_books: allBooksByAuthor,
+  });
 });
 
 exports.author_delete_post = asyncHandler(async (req, res, next) => {
-  const author = await Author.findById(req.params.id);
-  if (!author) return res.status(404).json({ message: "Author not found" });
+  const [author, allBooksByAuthor] = await Promise.all([
+    Author.findById(req.body.authorid).exec(),
+    Book.find({ author: req.body.authorid }, "title summary").exec(),
+  ]);
 
-  const books = await Book.find({ author: req.params.id });
-  if (books.length > 0)
-    return res.status(400).json({ message: "Author has books. Cannot delete." });
-
-  await Author.findByIdAndDelete(req.params.id);
-  res.json({ message: "Author deleted successfully" });
+  if (allBooksByAuthor.length > 0) {
+    res.render("author_delete", {
+      title: "Видалити автора",
+      author: author,
+      author_books: allBooksByAuthor,
+    });
+    return;
+  } else {
+    await Author.findByIdAndDelete(req.body.authorid);
+    res.redirect("/catalog/author");
+  }
 });
 
-exports.author_update_get = asyncHandler(async (req, res, next) => {
-  res.send("Author update GET - form (not needed for API)");
-});
+
 
 exports.author_update_post = asyncHandler(async (req, res, next) => {
   const { first_name, family_name, date_of_birth, date_of_death } = req.body;

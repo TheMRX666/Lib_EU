@@ -109,9 +109,19 @@ exports.bookinstance_update_post = asyncHandler(async (req, res) => {
   res.json(updatedInstance);
 });
 
-exports.bookinstance_delete_post = asyncHandler(async (req, res) => {
-  const instance = await BookInstance.findById(req.params.id);
-  if (!instance) return res.status(404).json({ message: "BookInstance not found" });
-  await BookInstance.findByIdAndDelete(req.params.id);
-  res.json({ message: "BookInstance deleted successfully" });
+exports.bookinstance_delete_get = asyncHandler(async (req, res, next) => {
+  const bookinstance = await BookInstance.findById(req.params.id).populate("book").exec();
+  if (bookinstance == null) {
+    res.redirect("/catalog/book");
+  }
+  res.render("bookinstance_delete", {
+    title: "Видалити екземпляр",
+    bookinstance: bookinstance,
+  });
+});
+
+
+exports.bookinstance_delete_post = asyncHandler(async (req, res, next) => {
+  await BookInstance.findByIdAndDelete(req.body.bookinstanceid);
+  res.redirect(`/catalog/book/${req.body.bookid}`);
 });

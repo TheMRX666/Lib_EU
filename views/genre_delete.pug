@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1 #{title}: #{genre.name}
+
+  if genre_books.length
+    p #[strong Видаліть книги, що використовують цей жанр, перш ніж видаляти.]
+    div(style='margin-left:20px;margin-top:20px')
+      each book in genre_books
+        p
+          a(href=book.url) #{book.title}
+  else
+    p Ви впевнені, що хочете видалити жанр?
+
+    form(method='POST')
+      input(type='hidden', name='genreid', value=genre._id)
+      button.btn.btn-primary(type='submit') Видалити

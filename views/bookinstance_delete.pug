@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1 Видалити екземпляр книги
+
+  p Ви впевнені, що хочете видалити наступний примірник?
+  ul
+    li Назва: #{bookinstance.book.title}
+    li Статус: #{bookinstance.status}
+    li Відбиток: #{bookinstance.imprint}
+  
+  form(method="POST", action=`/catalog/bookinstance/${bookinstance._id}/delete`)
+    input(type="hidden", name="bookinstanceid", value=bookinstance._id)
+    input(type="hidden", name="bookid", value=bookinstance.book._id)
+    button.btn.btn-danger(type="submit") Підтвердити видалення
+    a.btn.btn-secondary(href=`/catalog/book/${bookinstance.book._id}`) Скасувати

@@ -153,9 +153,39 @@ exports.book_update_post = asyncHandler(async (req, res) => {
   res.json(updatedBook);
 });
 
-exports.book_delete_post = asyncHandler(async (req, res) => {
-  const book = await Book.findById(req.params.id);
-  if (!book) return res.status(404).json({ message: "Book not found" });
-  await Book.findByIdAndDelete(req.params.id);
-  res.json({ message: "Book deleted successfully" });
+exports.book_delete_get = asyncHandler(async (req, res, next) => {
+  const [book, bookInstances] = await Promise.all([
+    Book.findById(req.params.id).populate("author genre").exec(),
+    BookInstance.find({ book: req.params.id }).exec(),
+  ]);
+
+  if (book === null) {
+    res.redirect("/catalog/book");
+  }
+
+  res.render("book_delete", {
+    title: "Видалити книгу",
+    book: book,
+    book_instances: bookInstances,
+  });
 });
+
+exports.book_delete_post = asyncHandler(async (req, res, next) => {
+  const [book, bookInstances] = await Promise.all([
+    Book.findById(req.body.bookid).exec(),
+    BookInstance.find({ book: req.body.bookid }).exec(),
+  ]);
+
+  if (bookInstances.length > 0) {
+    res.render("book_delete", {
+      title: "Видалити книгу",
+      book: book,
+      book_instances: bookInstances,
+    });
+    return;
+  } else {
+    await Book.findByIdAndDelete(req.body.bookid);
+    res.redirect("/catalog/book");
+  }
+});
+

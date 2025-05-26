@@ -26,11 +26,16 @@ block content
         p.text-danger #{val.status}
       else
         p.text-warning #{val.status}
-        p #[strong Відбиток:] #{val.imprint}
+      p #[strong Відбиток:] #{val.imprint}
       if val.status!='Available'
          p #[strong Повернення:] #{val.due_back_formatted}
       p #[strong Ідентифікатор: ]
         a(href=val.url) #{val._id}
+
+      form(method="POST", action=`/catalog/bookinstance/${val._id}/delete`, style="margin-top:10px;")
+        input(type="hidden", name="bookinstanceid", value=val._id)
+        input(type="hidden", name="bookid", value=book._id)
+        button.btn.btn-danger(type="submit") 🗑 Видалити примірник
 
     else
       p У бібліотеці немає копій цієї книги.
